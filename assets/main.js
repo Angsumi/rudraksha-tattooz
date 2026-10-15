@@ -94,14 +94,15 @@
     let nx = W * .9, ny = H * .2, tx = nx, ty = ny, lastNx = nx, buzzing = false, redUntil = 0;
     const tipX = 14 / 160, tipY = 146 / 160;
 
-    /* auto shading path — packs grey wash in sweeping rows, top to bottom */
-    let doneAt = 0, unink = 0, autoOn = false, ay = Y0, ax = 0, adir = 1, aT = 0, lastUser = -1e9, done = false, finishing = 0;
+    /* auto shading path — packs grey wash in sweeping rows over Shiva only, then hands the needle to the visitor */
+    const AUTO_STOP = 620; // image y around Shiva's chest; the visitor inks the rest
+    let handed = false, doneAt = 0, unink = 0, autoOn = false, ay = Y0, ax = 0, adir = 1, aT = 0, lastUser = -1e9, done = false, finishing = 0;
     const autoStep = dt => {
       const [lo, hi] = edge(ay);
       ax += adir * dt * 2.6; aT += dt;
       if (adir > 0 && ax > hi - 40) { ax = hi - 40; adir = -1; ay += 46; }
       if (adir < 0 && ax < lo + 40) { ax = lo + 40; adir = 1; ay += 46; }
-      if (ay > Y1) { ay = Y0; } // loop until covered
+      if (ay > AUTO_STOP) handOver();
       const wob = Math.sin(aT / 38) * 22;
       return [ax * k, (ay + wob) * k];
     };
@@ -126,9 +127,17 @@
     skin.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') { px = py = null; userActive = false; } });
     skin.addEventListener('pointercancel', () => { px = py = null; userActive = false; });
 
-    let hinted = false;
-    const showHint = () => { if (hinted) return; hinted = true; hint.textContent = matchMedia('(hover:none)').matches ? 'Rub the arm to ink it' : 'Take the needle — move over the stencil'; hint.classList.add('show'); };
-    const hideHint = () => hint.classList.remove('show');
+    const showHint = () => {
+      hint.textContent = matchMedia('(hover:none)').matches ? 'Your turn — rub to reveal Kali' : 'Your turn — move the needle over Kali';
+      hint.classList.add('show');
+    };
+    const hideHint = () => { hint.classList.remove('show'); needle.classList.remove('offer'); };
+    const handOver = () => { // park the needle beside Kali and invite the visitor in
+      if (handed) return;
+      handed = true; autoOn = false;
+      const [, hi] = edge(1060); tx = (hi - 60) * k; ty = 1060 * k;
+      needle.classList.add('offer'); showHint();
+    };
 
     /* coverage */
     let pct = 0, lastProbe = 0;
@@ -139,10 +148,9 @@
       pct = c / inside.length;
       pctEl.textContent = String(Math.min(100, Math.round(pct * 100 / .96))).padStart(2, '0');
       if (pct > .93 && !done) complete();
-      if (pct > .12) showHint();
     };
     const complete = () => {
-      done = true; finishing = doneAt = performance.now(); autoOn = false;
+      done = true; finishing = doneAt = performance.now(); autoOn = false; hideHint();
       pctEl.textContent = '100';
       setTimeout(() => forever.classList.add('show'), 500);
       setTimeout(() => forever.classList.remove('show'), 4200);
@@ -174,7 +182,7 @@
     /* restencil */
     $('#restencil').addEventListener('click', () => {
       mctx.clearRect(0, 0, mask.width, mask.height); rctx.clearRect(0, 0, red.width, red.height);
-      done = false; pct = 0; ay = Y0; adir = 1; ax = edge(Y0)[0] + 40; autoOn = true; lastUser = -1e9;
+      done = false; handed = false; pct = 0; ay = Y0; adir = 1; ax = edge(Y0)[0] + 40; autoOn = true; lastUser = -1e9; hideHint();
       forever.classList.remove('show'); pctEl.textContent = '00'; dirty = true;
     });
 
@@ -190,15 +198,17 @@
           const near = Math.hypot(nx - tx, ny - ty) < W * .08;
           for (let left = dt; left > 0; left -= 16) { // sub-step so slow devices ink at the same pace
             const [x, y] = autoStep(Math.min(16, left));
+            if (!autoOn) break; // handed over mid-frame: keep the parking spot
             if (near) stroke(tx, ty, x, y, .9);
             tx = x; ty = y;
           }
-          if (near) { nx = tx; ny = ty; inking = true; }
+          if (near && autoOn) { nx = tx; ny = ty; inking = true; }
         } else if (userActive && !idle) inking = !done;
         if (done && finishing) { // bloom to full colour
           mctx.globalAlpha = .07; mctx.fillStyle = '#000'; mctx.fillRect(0, 0, mask.width, mask.height); mctx.globalAlpha = 1; dirty = true;
           if (now - finishing > 1600) finishing = 0;
         }
+        if (handed && !done && now - lastUser > 7000 && !hint.classList.contains('show') && lastUser > 0) { showHint(); needle.classList.add('offer'); }
         if (done && !finishing && !unink && !reduce && now - doneAt > 9000 && now - lastUser > 9000) unink = now;
         if (unink) { // fade back to the stencil, then start a new session
           mctx.globalCompositeOperation = 'destination-out'; mctx.globalAlpha = .08;
