@@ -304,11 +304,13 @@
   const ritual = $('#ritual'), scv = $('#scrub'), sctx = scv.getContext('2d'), bar = $('#scrubBar'), time = $('#scrubTime');
   const steps = $$('#steps li');
   const FRAMES = 150, dur = 29.1;
+  const SKIP = [0, 61, 72, 92, 93, 111]; // black, halftone and white-flash transition frames from the source clip
+  const SEQ = [...Array(FRAMES).keys()].filter(i => !SKIP.includes(i));
   const frames = new Array(FRAMES);
   let target = 0, shown = 0, drawn = -1, loadedN = 0;
   const frameSrc = i => `assets/frames/f${String(i).padStart(3, '0')}.webp`;
   const order = [];
-  [16, 8, 4, 2, 1].forEach(st => { for (let i = 0; i < FRAMES; i += st) if (!order.includes(i)) order.push(i); });
+  [16, 8, 4, 2, 1].forEach(st => { for (let j = 0; j < SEQ.length; j += st) if (!order.includes(SEQ[j])) order.push(SEQ[j]); });
   const loadFrames = () => {
     let next = 0;
     const pump = () => {
@@ -324,13 +326,12 @@
     };
     for (let c = 0; c < 6; c++) pump();
   };
-  if (document.readyState === 'complete') setTimeout(loadFrames, 300);
-  else addEventListener('load', () => setTimeout(loadFrames, 300), { once: true });
+  loadFrames(); // start right away; the script runs at the end of <body>
 
-  const nearest = i => {
-    for (let d = 0; d < FRAMES; d++) {
-      if (frames[i - d]) return frames[i - d];
-      if (frames[i + d]) return frames[i + d];
+  const nearest = j => { // j = position in SEQ
+    for (let d = 0; d < SEQ.length; d++) {
+      if (frames[SEQ[j - d]]) return frames[SEQ[j - d]];
+      if (frames[SEQ[j + d]]) return frames[SEQ[j + d]];
     }
     return null;
   };
@@ -341,14 +342,14 @@
   sizeScrub(); addEventListener('resize', sizeScrub);
   (function scrubLoop() {
     shown += (target - shown) * .25;
-    const fi = Math.max(0, Math.min(FRAMES - 1, Math.round(shown / dur * (FRAMES - 1))));
+    const fi = Math.max(0, Math.min(SEQ.length - 1, Math.round(shown / dur * (SEQ.length - 1))));
     if (fi !== drawn) {
       const img = nearest(fi);
       if (img) {
         const cw = scv.width, ch = scv.height, s = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
         const w = img.naturalWidth * s, h = img.naturalHeight * s;
         sctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
-        if (frames[fi]) drawn = fi;
+        if (frames[SEQ[fi]]) drawn = fi;
       }
     }
     requestAnimationFrame(scrubLoop);
