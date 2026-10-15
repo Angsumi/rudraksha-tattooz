@@ -18,7 +18,7 @@
   --ease:cubic-bezier(.2,.7,.1,1);
 }
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
 body{
   margin:0;background:var(--ink);color:var(--bone);
   font-family:var(--f-serif);font-size:clamp(17px,1.15vw,20px);line-height:1.55;
@@ -165,6 +165,8 @@ section{position:relative}
 .skin__stencil,.skin canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .skin__stencil{object-fit:cover;filter:saturate(1.05)}
 .skin__red{mix-blend-mode:multiply;opacity:.85}
+/* touch inking zone over the forearm: rubbing here inks instead of scrolling or pull-to-refresh */
+.skin__zone{position:absolute;left:21%;right:16%;top:7%;bottom:12%;z-index:4;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .skin__stencil{animation:stencilGlow 3s ease-in-out infinite}
 @keyframes stencilGlow{50%{filter:saturate(1.25) brightness(1.04)}}
 @media (hover:hover) and (pointer:fine){ .skin{cursor:none} }

@@ -109,8 +109,11 @@
     /* user input */
     let userActive = false, px = null, py = null;
     const local = e => { const r = skin.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    // on touch, only the forearm zone inks; the rest of the hero scrolls as normal
+    const touchOff = e => e.pointerType !== 'mouse' && !e.target.closest('.skin__zone');
     const onMove = e => {
       if (e.pointerType === 'touch' && !e.isPrimary) return;
+      if (touchOff(e)) return;
       const [x, y] = local(e);
       tx = x; ty = y; userActive = true; lastUser = performance.now();
       if (px !== null && !done) stroke(px, py, x, y, 1);
@@ -118,12 +121,13 @@
       hideHint();
     };
     skin.addEventListener('pointermove', onMove);
-    skin.addEventListener('pointerdown', e => { const [x, y] = local(e); px = x; py = y; if (!done) stamp(x, y, 1.1); onMove(e); });
+    skin.addEventListener('pointerdown', e => { if (touchOff(e)) return; const [x, y] = local(e); px = x; py = y; if (!done) stamp(x, y, 1.1); onMove(e); });
     skin.addEventListener('pointerleave', () => { px = py = null; userActive = false; });
+    skin.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') { px = py = null; userActive = false; } });
     skin.addEventListener('pointercancel', () => { px = py = null; userActive = false; });
 
     let hinted = false;
-    const showHint = () => { if (hinted) return; hinted = true; hint.textContent = matchMedia('(hover:none)').matches ? 'Drag to ink it yourself' : 'Take the needle — move over the stencil'; hint.classList.add('show'); };
+    const showHint = () => { if (hinted) return; hinted = true; hint.textContent = matchMedia('(hover:none)').matches ? 'Rub the arm to ink it' : 'Take the needle — move over the stencil'; hint.classList.add('show'); };
     const hideHint = () => hint.classList.remove('show');
 
     /* coverage */
