@@ -183,7 +183,7 @@ section{position:relative}
   background:rgba(12,10,9,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:999px;padding:6px 6px 6px 16px}
 .skin__pct{color:var(--bone-2);margin-right:6px}
 .skin__pct b{color:var(--sindoor);font-weight:500;font-size:.95rem;letter-spacing:.04em}
-.skin__btn{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;padding:7px 11px;border-radius:999px;border:1px solid var(--line);color:var(--bone-2);transition:all .25s}
+.skin__btn{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;padding:7px 11px;border-radius:999px;border:1px solid var(--line);color:var(--bone-2);transition:all .25s}
 .skin__btn:hover{border-color:var(--sindoor);color:var(--bone)}
 .skin__btn[aria-pressed="true"]{background:var(--sindoor);border-color:var(--sindoor);color:var(--bone)}
 .skin__hint{position:absolute;left:50%;top:9%;transform:translateX(-50%);margin:0;color:var(--bone);white-space:nowrap;z-index:6;
@@ -216,8 +216,8 @@ section{position:relative}
 .hero__stats div{display:flex;flex-direction:column;gap:4px}
 .hero__stats b{font-family:var(--f-display);font-weight:400;font-size:clamp(2.2rem,3.2vw,3.4rem);line-height:1}
 .hero__stats small{color:var(--sindoor);font-size:.6em;margin-left:2px}
-.hero__stats .mono{color:var(--ash);font-size:.58rem}
-.hero__piece{grid-column:1/-1;margin:16px 0 0;color:var(--ash);font-size:.56rem}
+.hero__stats .mono{color:var(--ash);font-size:.64rem}
+.hero__piece{grid-column:1/-1;margin:16px 0 0;color:var(--ash);font-size:.62rem}
 .hero__piece em{font-size:1.2em;text-transform:none;letter-spacing:0}
 .hero__as{position:absolute;left:-2vw;bottom:-5vw;font-family:var(--f-as);font-weight:700;font-size:22vw;line-height:1;color:transparent;
   -webkit-text-stroke:1px rgba(239,230,214,.05);pointer-events:none;user-select:none;z-index:-1}
@@ -291,7 +291,7 @@ section{position:relative}
 .ritual__hint{color:var(--ash);margin-top:28px}
 .ritual__phone{position:relative;height:min(76svh,720px);aspect-ratio:9/16;border-radius:34px;overflow:hidden;border:1px solid var(--line);
   box-shadow:0 40px 120px -20px rgba(0,0,0,.8),0 0 0 8px var(--soot),0 0 0 9px var(--line)}
-.ritual__phone video{width:100%;height:100%;object-fit:cover}
+.ritual__phone canvas{display:block;width:100%;height:100%;background:#111 url(img/p-consult.webp) center/cover}
 .ritual__time{position:absolute;top:18px;left:18px;background:rgba(12,10,9,.7);padding:6px 10px;border-radius:999px;backdrop-filter:blur(6px)}
 .ritual__time::before{content:"● ";color:var(--sindoor)}
 .ritual__bar{position:absolute;left:18px;right:18px;bottom:18px;height:2px;background:rgba(239,230,214,.25);border-radius:2px;overflow:hidden}
@@ -309,7 +309,7 @@ section{position:relative}
   .ritual__head .display{font-size:clamp(2.6rem,11vw,4rem)}
   .ritual__head .eyebrow{margin-bottom:10px}
   .ritual__hint{margin-top:8px}
-  .ritual__phone{height:46svh;justify-self:center}
+  .ritual__phone{height:54svh;justify-self:center}
   .ritual__steps li{display:none;border:0;padding:0}
   .ritual__steps li.on{display:grid}
 }
@@ -336,7 +336,7 @@ section{position:relative}
 .artist__facts div{padding:22px 14px 0 0;display:flex;flex-direction:column;gap:6px}
 .artist__facts div+div{padding-left:18px;border-left:1px solid var(--line)}
 .artist__facts b{font-family:var(--f-display);font-weight:400;font-size:clamp(2.2rem,3.4vw,3.4rem);line-height:1}
-.artist__facts .mono{color:var(--ash);font-size:.58rem}
+.artist__facts .mono{color:var(--ash);font-size:.64rem}
 @media (max-width:900px){
   .artist{grid-template-columns:1fr;gap:70px}
   .artist__photos{height:120vw;max-height:620px}
@@ -499,6 +499,107 @@ section{position:relative}
 .wa-float svg{width:28px;height:28px;fill:var(--ink)}
 .wa-float:hover{transform:scale(1.1) rotate(-8deg);background:var(--sindoor)}
 .wa-float:hover svg{fill:var(--bone)}
+
+
+/* ============ Phone typography ============ */
+@media (max-width:640px){
+  body{font-size:18.5px;line-height:1.6}
+  .mono{font-size:.76rem;letter-spacing:.11em}
+  .eyebrow{font-size:.8rem;margin-bottom:16px}
+  .eyebrow::before{width:22px}
+  .display{font-size:clamp(4rem,19vw,6.2rem);line-height:.84}
+  .display-sm{font-size:clamp(3.2rem,14.5vw,4.6rem)}
+  .section-head{margin-bottom:38px}
+  .section-head__sub{font-size:1.28rem;line-height:1.4;color:var(--bone)}
+  .btn{font-size:.8rem;padding:17px 26px}
+  .link-u{font-size:.78rem}
+
+  .nav__logo span{font-size:1.7rem}
+  .nav__logo em{font-size:1.1rem}
+
+  /* hero */
+  .hero__copy .serif-lg{font-size:1.42rem;line-height:1.35}
+  .hero__stats b{font-size:3.1rem}
+  .hero__stats .mono{font-size:.7rem}
+  .hero__piece{font-size:.68rem;line-height:1.7}
+  .hero__tz{font-size:2.3rem}
+  .skin__pct{font-size:.72rem}
+  .skin__pct b{font-size:1.1rem}
+  .skin__btn{font-size:.68rem;padding:8px 12px}
+  .skin__hint{font-size:.74rem}
+
+  .marquee{padding:18px 0}
+  .marquee span{font-size:2.3rem}
+
+  .manifesto{padding-block:110px}
+  .manifesto__text{font-size:2.3rem;line-height:1.16}
+  .manifesto__sign{align-items:flex-start}
+  .manifesto__sign .mono{line-height:1.7}
+
+  /* gallery */
+  .filter{font-size:.76rem;padding:12px 17px}
+  .grid{grid-auto-rows:46vw;gap:10px}
+  .card figcaption b{font-size:1.45rem}
+  .card__no{font-size:.66rem!important}
+
+  /* ritual */
+  .ritual__steps b{font-size:2.2rem}
+  .ritual__steps p{font-size:1.12rem;line-height:1.45}
+  .ritual__steps li>span{font-size:.8rem}
+  .ritual__hint{font-size:.72rem}
+  .ritual__time{font-size:.72rem}
+
+  /* artist */
+  .artist__aka{font-size:.78rem}
+  .artist__quote{font-size:1.65rem}
+  .artist__quote cite{font-size:.68rem;line-height:1.6}
+  .artist__text>p{font-size:1.15rem;color:var(--bone)}
+  .artist__facts b{font-size:2.7rem}
+  .artist__facts .mono{font-size:.66rem;line-height:1.5}
+  .artist__facts div+div{padding-left:12px}
+
+  /* styles */
+  .flash__item{padding:34px 26px}
+  .flash__item h3{font-size:2.4rem}
+  .flash__item p{font-size:1.15rem;opacity:.85}
+  .flash__no{font-size:.8rem}
+
+  .studio__overlay .display-sm{font-size:2.6rem}
+
+  /* reviews */
+  .reviews__big{font-size:9.5rem}
+  .reviews__stars{font-size:2rem}
+  .reviews__score p{font-size:.72rem}
+  .rq{padding:28px 24px}
+  .rq p{font-size:1.55rem}
+
+  /* aftercare */
+  .heal__tabs{grid-template-columns:repeat(2,1fr);row-gap:14px}
+  .heal__tab{font-size:1.75rem;padding-bottom:10px}
+  .heal__line{display:none}
+  .heal__tab.is-active{color:var(--sindoor)}
+  .heal__panels{margin-top:30px}
+  .heal__panel h3{font-size:2.2rem}
+  .heal__panel li{font-size:1.15rem;color:var(--bone)}
+
+  /* faq */
+  .faq summary{font-size:1.38rem;padding:22px 0}
+  .faq details p{font-size:1.12rem}
+
+  /* booking */
+  .book__left p{font-size:1.25rem}
+  .book__phone{font-size:2.8rem}
+  .field>span{font-size:.72rem}
+  .field input,.field textarea{font-size:1.3rem}
+  .chips button{font-size:.72rem;padding:11px 15px}
+  .form__note{font-size:.74rem}
+
+  /* visit + footer */
+  .visit address{font-size:1.35rem}
+  .visit__hours{font-size:.74rem}
+  .socials{font-size:.78rem}
+  .footer__row{font-size:.7rem;justify-content:center;text-align:center}
+}
 
 /* ============ Reduced motion ============ */
 @media (prefers-reduced-motion:reduce){

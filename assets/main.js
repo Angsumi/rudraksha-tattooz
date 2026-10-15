@@ -297,27 +297,59 @@
   }).join(' ');
   const words = $$('.w', ink);
 
-  /* ---------- Scrub video ---------- */
-  const ritual = $('#ritual'), vid = $('#scrub'), bar = $('#scrubBar'), time = $('#scrubTime');
+  /* ---------- Session scrub: an image sequence on canvas ----------
+     Phones seek video frames slowly, so scrubbing a <video> stutters. Swapping
+     pre-decoded stills is instant everywhere. All frames start downloading
+     when the page opens: a coarse pass first, then the gaps fill in. */
+  const ritual = $('#ritual'), scv = $('#scrub'), sctx = scv.getContext('2d'), bar = $('#scrubBar'), time = $('#scrubTime');
   const steps = $$('#steps li');
-  let target = 0, shown = 0, dur = 29;
-  vid.addEventListener('loadedmetadata', () => { dur = vid.duration || 29; });
-  // Load the clip as a blob shortly before it's needed, so seeking works on any host
-  const vidSrc = vid.dataset.src;
-  const vio = new IntersectionObserver(es => {
-    if (!es[0].isIntersecting) return;
-    vio.disconnect();
-    fetch(vidSrc).then(r => r.blob()).then(b => { vid.src = URL.createObjectURL(b); })
-      .catch(() => { vid.src = vidSrc; });
-  }, { rootMargin: '1500px 0px' });
-  vio.observe(ritual);
-  // iOS needs a play/pause to allow seeking
-  const prime = () => { vid.play().then(() => vid.pause()).catch(() => {}); removeEventListener('touchstart', prime); };
-  addEventListener('touchstart', prime, { passive: true });
+  const FRAMES = 150, dur = 29.1;
+  const frames = new Array(FRAMES);
+  let target = 0, shown = 0, drawn = -1, loadedN = 0;
+  const frameSrc = i => `assets/frames/f${String(i).padStart(3, '0')}.webp`;
+  const order = [];
+  [16, 8, 4, 2, 1].forEach(st => { for (let i = 0; i < FRAMES; i += st) if (!order.includes(i)) order.push(i); });
+  const loadFrames = () => {
+    let next = 0;
+    const pump = () => {
+      if (next >= order.length) return;
+      const i = order[next++], img = new Image();
+      img.decoding = 'async';
+      img.onload = () => {
+        const done = () => { frames[i] = img; loadedN++; drawn = -1; pump(); };
+        img.decode ? img.decode().then(done, done) : done();
+      };
+      img.onerror = pump;
+      img.src = frameSrc(i);
+    };
+    for (let c = 0; c < 6; c++) pump();
+  };
+  if (document.readyState === 'complete') setTimeout(loadFrames, 300);
+  else addEventListener('load', () => setTimeout(loadFrames, 300), { once: true });
+
+  const nearest = i => {
+    for (let d = 0; d < FRAMES; d++) {
+      if (frames[i - d]) return frames[i - d];
+      if (frames[i + d]) return frames[i + d];
+    }
+    return null;
+  };
+  const sizeScrub = () => {
+    const r = scv.getBoundingClientRect(), dp = Math.min(2, devicePixelRatio || 1);
+    scv.width = Math.round(r.width * dp); scv.height = Math.round(r.height * dp); drawn = -1;
+  };
+  sizeScrub(); addEventListener('resize', sizeScrub);
   (function scrubLoop() {
-    shown += (target - shown) * .14;
-    if (Math.abs(target - shown) > .01 && vid.readyState >= 1) {
-      try { vid.currentTime = shown; } catch (e) {}
+    shown += (target - shown) * .25;
+    const fi = Math.max(0, Math.min(FRAMES - 1, Math.round(shown / dur * (FRAMES - 1))));
+    if (fi !== drawn) {
+      const img = nearest(fi);
+      if (img) {
+        const cw = scv.width, ch = scv.height, s = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
+        const w = img.naturalWidth * s, h = img.naturalHeight * s;
+        sctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+        if (frames[fi]) drawn = fi;
+      }
     }
     requestAnimationFrame(scrubLoop);
   })();
